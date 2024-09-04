@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+# ignore ipynb checkpoints
+.ipynb_checkpoints/
+
+# ignore .DS_Store
+.DS_Store
+
 # Distribution / packaging
 .Python
 build/
