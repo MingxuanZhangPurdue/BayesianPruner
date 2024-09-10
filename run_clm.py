@@ -56,14 +56,8 @@ from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
 
-# Import pruners and sparsity schedulers and add support for yaml files used to configure runs
-import yaml
-from pruners.BayesianPruners import UnstructuredBayesianPruner
-from pruners import SparsitySchedulers
-
-
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
-#check_min_version("4.45.0.dev0")
+# check_min_version("4.44.0")
 
 logger = get_logger(__name__)
 
@@ -243,8 +237,12 @@ def parse_args():
             "If passed, LLM loading time and RAM consumption will be benefited."
         ),
     )
-
-    
+    parser.add_argument(
+        "--cache_dir",
+        type=str,
+        default=None,
+        help="Path to cache directory."
+    )
     args = parser.parse_args()
 
     # Sanity checks
@@ -335,7 +333,7 @@ def main():
     if args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset(
-            args.dataset_name, args.dataset_config_name, trust_remote_code=args.trust_remote_code
+            args.dataset_name, args.dataset_config_name, trust_remote_code=args.trust_remote_code, cache_dir=args.cache_dir
         )
         if "validation" not in raw_datasets.keys():
             raw_datasets["validation"] = load_dataset(
@@ -343,12 +341,14 @@ def main():
                 args.dataset_config_name,
                 split=f"train[:{args.validation_split_percentage}%]",
                 trust_remote_code=args.trust_remote_code,
+                cache_dir=args.cache_dir
             )
             raw_datasets["train"] = load_dataset(
                 args.dataset_name,
                 args.dataset_config_name,
                 split=f"train[{args.validation_split_percentage}%:]",
                 trust_remote_code=args.trust_remote_code,
+                cache_dir=args.cache_dir
             )
     else:
         data_files = {}
@@ -389,11 +389,13 @@ def main():
         config = AutoConfig.from_pretrained(
             args.config_name,
             trust_remote_code=args.trust_remote_code,
+            cache_dir=args.cache_dir
         )
     elif args.model_name_or_path:
         config = AutoConfig.from_pretrained(
             args.model_name_or_path,
             trust_remote_code=args.trust_remote_code,
+            cache_dir=args.cache_dir
         )
     else:
         config = CONFIG_MAPPING[args.model_type]()
@@ -401,11 +403,11 @@ def main():
 
     if args.tokenizer_name:
         tokenizer = AutoTokenizer.from_pretrained(
-            args.tokenizer_name, use_fast=not args.use_slow_tokenizer, trust_remote_code=args.trust_remote_code
+            args.tokenizer_name, use_fast=not args.use_slow_tokenizer, trust_remote_code=args.trust_remote_code, cache_dir=args.cache_dir
         )
     elif args.model_name_or_path:
         tokenizer = AutoTokenizer.from_pretrained(
-            args.model_name_or_path, use_fast=not args.use_slow_tokenizer, trust_remote_code=args.trust_remote_code
+            args.model_name_or_path, use_fast=not args.use_slow_tokenizer, trust_remote_code=args.trust_remote_code, cache_dir=args.cache_dir
         )
     else:
         raise ValueError(
@@ -420,6 +422,7 @@ def main():
             config=config,
             low_cpu_mem_usage=args.low_cpu_mem_usage,
             trust_remote_code=args.trust_remote_code,
+            cache_dir=args.cache_dir
         )
     else:
         logger.info("Training new model from scratch")
@@ -646,7 +649,7 @@ def main():
                 completed_steps += 1
 
             if isinstance(checkpointing_steps, int):
-                if completed_steps % checkpointing_steps == 0 and accelerator.sync_gradients:
+                if completed_steps % checkpointing_steps == 0:
                     output_dir = f"step_{completed_steps}"
                     if args.output_dir is not None:
                         output_dir = os.path.join(args.output_dir, output_dir)
