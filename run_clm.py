@@ -240,7 +240,7 @@ def parse_args():
     parser.add_argument(
         "--cache_dir",
         type=str,
-        default=None,
+        default="./cache",
         help="Path to cache directory."
     )
     args = parser.parse_args()
