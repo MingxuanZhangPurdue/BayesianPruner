@@ -56,6 +56,12 @@ from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
 
+"""
+Import additional modules
+"""
+import yaml
+from pruners import BayesianPruners, SparsitySchedulers, PriorSchedulers   
+
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.44.0")
 
@@ -237,13 +243,34 @@ def parse_args():
             "If passed, LLM loading time and RAM consumption will be benefited."
         ),
     )
+
+    """
+    Define additional arguments
+    """
     parser.add_argument(
         "--cache_dir",
         type=str,
         default="./cache",
         help="Path to cache directory."
     )
-    args = parser.parse_args()
+
+    config_parser = argparse.ArgumentParser(description='YAML Config', add_help=False)
+    config_parser.add_argument(
+        '-c', '--config', 
+        type=str, 
+        required=True,
+        metavar='FILE',
+        help='YAML config file specifying default arguments'
+    )
+
+    args_config, remaining = config_parser.parse_known_args()
+
+    with open(args_config.config, 'r') as f:
+        cfg = yaml.safe_load(f)
+        if "Arguments" in cfg:
+            parser.set_defaults(**cfg["Arguments"])
+
+    args = parser.parse_args(remaining)
 
     # Sanity checks
     if args.dataset_name is None and args.train_file is None and args.validation_file is None:
@@ -262,11 +289,11 @@ def parse_args():
         if args.output_dir is None:
             raise ValueError("Need an `output_dir` to create a repo when `--push_to_hub` is passed.")
 
-    return args
+    return args, cfg
 
 
 def main():
-    args = parse_args()
+    args, cfg = parse_args()
 
     # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
     # information sent is the one passed as arguments along with your Python/PyTorch versions.
@@ -622,6 +649,28 @@ def main():
     # update the progress_bar if load from checkpoint
     progress_bar.update(completed_steps)
 
+    """
+    Bayesian Pruning
+    """
+    total_train_tokens = sum(len(example["input_ids"]) - 1 for example in train_dataset)
+
+    prior_scheduler = getattr(PriorSchedulers, cfg["PriorScheduler"]["name"])(
+        total_train_steps=args.max_train_steps,
+        **cfg["PriorScheduler"]["params"]
+    )
+
+    sparsity_scheduler = getattr(SparsitySchedulers, cfg["SparsityScheduler"]["name"])(
+        **cfg["SparsityScheduler"]["params"]
+    )
+
+    pruner = getattr(BayesianPruners, cfg["Pruner"]["name"])(
+        model=model, 
+        train_size=total_train_tokens,
+        sparsity_scheduler=sparsity_scheduler,
+        prior_scheduler=prior_scheduler,
+        target_modules=cfg["Pruner"]["params"]["target_modules"],
+    )
+
     for epoch in range(starting_epoch, args.num_train_epochs):
         model.train()
         if args.with_tracking:
@@ -635,6 +684,11 @@ def main():
             with accelerator.accumulate(model):
                 outputs = model(**batch)
                 loss = outputs.loss
+
+                # Apply manual gradients only on the last accumulation step
+                if accelerator.sync_gradients:
+                    pruner.apply_prior_grad(completed_steps + 1)
+
                 # We keep track of the loss at each epoch
                 if args.with_tracking:
                     total_loss += loss.detach().float()
@@ -645,6 +699,7 @@ def main():
 
             # Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:
+                pruner.prune(completed_steps + 1)
                 progress_bar.update(1)
                 completed_steps += 1
 

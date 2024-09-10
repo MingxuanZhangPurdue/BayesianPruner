@@ -6,7 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
-# ignore ipynb checkpoints
+# ignore ipynb and its checkpoints
 .ipynb_checkpoints/
 
 # ignore .DS_Store

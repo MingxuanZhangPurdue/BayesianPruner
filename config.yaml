@@ -1,26 +1,30 @@
+SparsityScheduler:
+  name: CubicSparsityScheduler
+  params:
+    initial_sparsity: 0.1
+    final_sparsity: 0.8
+    pruning_start_step: 0.1
+    pruning_end_step: 0.9
+    pruning_interval: 0.01
+
+PriorScheduler:
+  name: ConstantPriorScheduler
+  params:
+    lambda_mix: 1e-4
+    sigma0: 1e-10
+    sigma1: 0.01
+
 Pruner:
   name: UnstructuredBayesainPruner
   params:
-    sigma0: 1e-10
-    sigma1: 0.1
-    lambda_mix: 1e-7
     target_modules:
       - transformer.h.*.mlp.c_fc.weight
       - transformer.h.*.mlp.c_proj.weight
       - transformer.h.*.attn.c_attn.weight
       - transformer.h.*.attn.c_proj.weight
 
-SparsityScheduler:
-  name: CubicSparsityScheduler
-  params:
-    initial_sparsity: 0.1
-    final_sparsity: 0.5
-    total_train_steps: 1000
-    pruning_start_step: 100
-    pruning_end_step: 900
-    pruning_interval: 100
-
 Arguments:
+  trust_remote_code: true
   dataset_name: HuggingFaceFW/fineweb
   dataset_config_name: sample-10BT
   validation_split_percentage: 5
@@ -32,4 +36,5 @@ Arguments:
   num_warmup_steps: 500
   seed: 42
   block_size: 1024
-  preprocessing_num_workers: 32
+  preprocessing_num_workers: 64
+  output_dir: ./output
