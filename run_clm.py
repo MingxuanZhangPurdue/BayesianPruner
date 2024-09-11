@@ -652,7 +652,7 @@ def main():
     """
     Bayesian Pruning
     """
-    total_train_tokens = sum(len(example["input_ids"]) - 1 for example in train_dataset)
+    #total_train_tokens = sum(len(example["input_ids"]) - 1 for example in train_dataset)
 
     prior_scheduler = getattr(PriorSchedulers, cfg["PriorScheduler"]["name"])(
         total_train_steps=args.max_train_steps,
@@ -665,7 +665,7 @@ def main():
 
     pruner = getattr(BayesianPruners, cfg["Pruner"]["name"])(
         model=model, 
-        train_size=total_train_tokens,
+        train_size=len(train_dataset),
         sparsity_scheduler=sparsity_scheduler,
         prior_scheduler=prior_scheduler,
         target_modules=cfg["Pruner"]["params"]["target_modules"],
