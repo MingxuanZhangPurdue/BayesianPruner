@@ -652,7 +652,6 @@ def main():
     """
     Bayesian Pruning
     """
-    #total_train_tokens = sum(len(example["input_ids"]) - 1 for example in train_dataset)
 
     prior_scheduler = getattr(PriorSchedulers, cfg["PriorScheduler"]["name"])(
         total_train_steps=args.max_train_steps,
