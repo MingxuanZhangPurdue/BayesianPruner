@@ -31,7 +31,7 @@ class UnstructuredBayesianPruner:
 
         self.mask = None
 
-        self.total_target_params = sum(tensor.numel() for tensor in model.named_parameters() if self.is_target_module(tensor))
+        self.total_target_params = sum(tensor.numel() for tensor, tensor_name in model.named_parameters() if self.is_target_module(tensor_name))
 
     def log_info(
         self
