@@ -670,6 +670,8 @@ def main():
         target_modules=cfg["Pruner"]["params"]["target_modules"],
     )
 
+    pruner.log_info()
+
     for epoch in range(starting_epoch, args.num_train_epochs):
         model.train()
         if args.with_tracking:
