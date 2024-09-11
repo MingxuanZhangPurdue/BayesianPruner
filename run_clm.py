@@ -654,11 +654,11 @@ def main():
     """
 
     prior_scheduler = getattr(PriorSchedulers, cfg["PriorScheduler"]["name"])(
-        total_train_steps=args.max_train_steps,
         **cfg["PriorScheduler"]["params"]
     )
 
     sparsity_scheduler = getattr(SparsitySchedulers, cfg["SparsityScheduler"]["name"])(
+        total_train_steps=args.max_train_steps,
         **cfg["SparsityScheduler"]["params"]
     )
 
