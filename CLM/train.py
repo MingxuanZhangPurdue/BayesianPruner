@@ -120,7 +120,7 @@ def main():
     # load the pretrained model and tokenizer
     torch_dtype = torch_dtype_map.get(args.torch_dtype, "auto")
     model = AutoModelForCausalLM.from_pretrained(
-        pretrained_model_name_or_path=args.model_name_or_path,
+        args.model_name_or_path,
         trust_remote_code=not args.not_trust_remote_code,
         cache_dir=args.cache_dir,
         attn_implementation=args.attn_implementation,
@@ -135,6 +135,7 @@ def main():
         cache_dir=args.cache_dir
     )
 
+    # get the processed datasets
     lm_datasets = get_processed_datasets(
         tokenizer,
         args.preprocessed_data_dir
