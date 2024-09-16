@@ -146,11 +146,6 @@ def main():
     train_dataset = lm_datasets["train"]
     eval_dataset = lm_datasets["validation"]
 
-    embedding_size = model.get_input_embeddings().weight.shape[0]
-    if len(tokenizer) > embedding_size:
-        warnings.warn(f"Resizing embedding size to {len(tokenizer)}")
-        model.resize_token_embeddings(len(tokenizer))
-
     train_sampler = get_sampler(
         train_dataset, 
         shuffle=True
@@ -179,7 +174,6 @@ def main():
     ]
     composer_model = HuggingFaceModel(
         model, 
-        tokenizer=tokenizer, 
         metrics=metrics, 
         use_logits=True
     )

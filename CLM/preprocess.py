@@ -1,8 +1,8 @@
 """
-This script is used to process datasets from Hugging Face's datasets hub for causal language modeling tasks.
+This script is used to preprocess datasets from Hugging Face's datasets hub for causal language modeling tasks.
 It includes functions to load, tokenize, and prepare datasets for training, with options
 for handling validation splits, tokenization, and text grouping into fixed-size blocks.
-The processed data will be saved in the cache directory and can be reused for future runs.
+The processed data will be saved in the output directory specified by the user and can be reused for future runs.
 """
 
 import argparse
@@ -26,9 +26,9 @@ def parse_args():
     parser.add_argument("--preprocessing_num_workers", default=None, type=int, help="The number of processes to use for the preprocessing.")
     parser.add_argument("--block_size", default=None, type=int, help="The size of the blocks to group the texts into.")
 
-    parser.add_argument("--output_dir", default=None, type=str, help="The directory to save the processed datasets.")
-    parser.add_argument("--cache_dir", default="./cache", type=str, help="The directory to cache the dataset.")
-    parser.add_argument("--overwrite_cache", default=False, action="store_true", help="Overwrite the cache directory.")
+    parser.add_argument("--output_dir", default=None, help="The directory to save the preprocessed datasets.")
+    parser.add_argument("--cache_dir", default="./cache", type=str, help="The directory to cache the downloaded datasets.")
+    parser.add_argument("--overwrite_cache", action="store_true", help="Overwrite the cache directory.")
 
     return parser.parse_args()
 
@@ -136,6 +136,10 @@ def main():
 
     datasets = get_processed_datasets(tokenizer, args)
 
+    if args.output_dir is None:
+        args.output_dir = f"./preprocessed_data/{args.dataset_name}/{args.dataset_config_name}"
+
+    print(f"Saving the preprocessed datasets to {args.output_dir}")
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     datasets.save_to_disk(args.output_dir)
 
