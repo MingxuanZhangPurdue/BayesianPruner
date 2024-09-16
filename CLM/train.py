@@ -1,5 +1,4 @@
 import argparse
-import warnings
 import yaml
 
 import torch
@@ -7,9 +6,10 @@ from torch.utils.data import DataLoader
 
 from transformers import (
     AutoModelForCausalLM,
-    AutoTokenizer,
     default_data_collator,
 )
+
+from datasets import load_from_disk
 
 import composer
 from composer.utils.dist import get_sampler
@@ -17,8 +17,6 @@ from composer.utils import reproducibility
 from composer.models.huggingface import HuggingFaceModel
 from composer.metrics import LanguageCrossEntropy
 from composer.loggers import WandBLogger
-
-from .utils_data import get_processed_datasets
 
 import pruners
 
@@ -54,20 +52,8 @@ def parse_args():
     parser.add_argument("--attn_implementation", type=str, default="sdpa", choices=["eager", "flash_attention_2", "sdpa"], help="Attention implementation to use.")
     parser.add_argument("--torch_dtype", type=str, default="auto", choices=["auto", "float16", "bfloat16", "float32"], help="Specify the dtype of the model.")
 
-    # datasets arguments
-    parser.add_argument("--dataset_name", default=None, type=str, help="The name of the dataset to use (via the datasets library).")
-    parser.add_argument("--dataset_config_name", type=str, default=None, help="The configuration name of the dataset to use (via the datasets library).")
-    parser.add_argument("--validation_split_percentage", default=5, help="The percentage of the train set used as validation set in case there's no validation split")
-
-    # datasets preprocessing arguments
-    parser.add_argument("--block_size", type=int, default=None,
-        help=(
-            "Optional input sequence length after tokenization. The training dataset will be truncated in block of"
-            " this size for training. Default to the model max input length for single sentence inputs (take into"
-            " account special tokens)."
-        ),
-    )
-    parser.add_argument("--preprocessing_num_workers", type=int, default=None, help="The number of processes to use for the preprocessing.")
+    # preprocessed data arguments
+    parser.add_argument("--preprocessed_data_dir", type=str, required=True, help="Path to the preprocessed datasets.")
 
     # training arguments
     parser.add_argument("--per_device_train_batch_size", type=int, default=1, help="Batch size (per device) for the training dataloader.")
@@ -121,7 +107,7 @@ def main():
     # set the seed for reproducibility
     reproducibility.seed_all(args.seed)
 
-    # load the model and tokenizer
+    # load the pretrained model
     torch_dtype = torch_dtype_map.get(args.torch_dtype, "auto")
     model = AutoModelForCausalLM.from_pretrained(
         pretrained_model_name_or_path=args.model_name_or_path,
@@ -132,16 +118,8 @@ def main():
         device_map="auto"
     )
 
-    tokenizer = AutoTokenizer.from_pretrained(
-        pretrained_model_name_or_path=args.model_name_or_path, 
-        use_fast=True,
-        trust_remote_code=True, 
-        cache_dir=args.cache_dir
-    )
-    
-    lm_datasets = get_processed_datasets(
-        tokenizer=tokenizer,
-        args=args
+    lm_datasets = load_from_disk(
+        args.preprocessed_data_dir
     )
     train_dataset = lm_datasets["train"]
     eval_dataset = lm_datasets["validation"]
@@ -175,7 +153,8 @@ def main():
     composer_model = HuggingFaceModel(
         model, 
         metrics=metrics, 
-        use_logits=True
+        use_logits=True,
+        shift_labels=True
     )
 
     # initialize the optimizer (AdamW)
