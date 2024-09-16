@@ -49,6 +49,7 @@ def parse_args():
 
     # model arguments
     parser.add_argument("--model_name_or_path", default=None, type=str, help="Path to pretrained model or model identifier from huggingface.co/models.")
+    parser.add_argument("--not_trust_remote_code", action="store_true", help="If passed, will not trust the remote code when loading the model.")
     parser.add_argument("--attn_implementation", type=str, default="sdpa", choices=["eager", "flash_attention_2", "sdpa"], help="Attention implementation to use.")
     parser.add_argument("--torch_dtype", type=str, default="auto", choices=["auto", "float16", "bfloat16", "float32"], help="Specify the dtype of the model.")
 
@@ -111,7 +112,7 @@ def main():
     torch_dtype = torch_dtype_map.get(args.torch_dtype, "auto")
     model = AutoModelForCausalLM.from_pretrained(
         pretrained_model_name_or_path=args.model_name_or_path,
-        trust_remote_code=True,
+        trust_remote_code=not args.not_trust_remote_code,
         cache_dir=args.cache_dir,
         attn_implementation=args.attn_implementation,
         torch_dtype=torch_dtype,
@@ -167,12 +168,6 @@ def main():
         fused=True
     )
 
-    # initialize the lr scheduler
-    lr_scheduler = getattr(
-        composer.optim, 
-        config["LRScheduler"]["name"]
-    )(**config["LRScheduler"]["params"])
-
     # calculate the total number of training steps
     train_time = composer.Time.from_timestring(args.max_duration)
     if train_time.unit == composer.TimeUnit.EPOCH:
@@ -181,6 +176,12 @@ def main():
         total_train_steps = train_time.value
     else:
         raise ValueError(f"Unsupported time unit: {train_time.unit}")
+    
+    # initialize the lr scheduler
+    lr_scheduler = getattr(
+        composer.optim, 
+        config["LRScheduler"]["name"]
+    )(**config["LRScheduler"]["params"])
 
     # initialize the sparsity scheduler
     sparsity_scheduler = getattr(

@@ -2,7 +2,7 @@
 This script is used to preprocess datasets from Hugging Face's datasets hub for causal language modeling tasks.
 It includes functions to load, tokenize, and prepare datasets for training, with options
 for handling validation splits, tokenization, and text grouping into fixed-size blocks.
-The processed data will be saved in the output directory specified by the user and can be reused for future runs.
+The preprocessed data will be saved in the output directory specified by the user and can be reused for future runs.
 """
 
 import argparse
@@ -125,6 +125,7 @@ def get_processed_datasets(
 
 
 def main():
+    
     args = parse_args()
 
     tokenizer = AutoTokenizer.from_pretrained(
