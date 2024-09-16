@@ -129,6 +129,7 @@ def main():
         cache_dir=args.cache_dir,
         attn_implementation=args.attn_implementation,
         torch_dtype=torch_dtype,
+        device_map="auto"
     )
 
     tokenizer = AutoTokenizer.from_pretrained(

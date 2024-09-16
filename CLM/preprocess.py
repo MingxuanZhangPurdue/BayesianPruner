@@ -27,7 +27,7 @@ def parse_args():
     parser.add_argument("--block_size", default=None, type=int, help="The size of the blocks to group the texts into.")
 
     parser.add_argument("--output_dir", default=None, type=str, help="The directory to save the processed datasets.")
-    parser.add_argument("--cache_dir", default=None, type=str, help="The directory to cache the dataset.")
+    parser.add_argument("--cache_dir", default="./cache", type=str, help="The directory to cache the dataset.")
     parser.add_argument("--overwrite_cache", default=False, action="store_true", help="Overwrite the cache directory.")
 
     return parser.parse_args()
