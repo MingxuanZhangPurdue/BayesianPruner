@@ -5,11 +5,10 @@ import torch
 from torch.utils.data import DataLoader
 
 from transformers import (
+    AutoTokenizer,
     AutoModelForCausalLM,
     default_data_collator,
 )
-
-from datasets import load_from_disk
 
 import composer
 from composer.utils.dist import get_sampler
@@ -17,6 +16,8 @@ from composer.utils import reproducibility
 from composer.models.huggingface import HuggingFaceModel
 from composer.metrics import LanguageCrossEntropy
 from composer.loggers import WandBLogger
+
+from utils_data import get_processed_datasets
 
 import pruners
 
@@ -43,18 +44,26 @@ def parse_args():
     # main parser
     parser = argparse.ArgumentParser(description="Prune and finetune a pretrained model on a causal language modeling task.")
 
+    # misc arguments
+    parser.add_argument("--not_trust_remote_code", action="store_true", help="Do not trust remote code when loading the tokenizer.")
+
     # caching arguments
     parser.add_argument("--cache_dir", type=str, default="./cache", help="Where to store the pretrained models and datasets")
     parser.add_argument("--overwrite_cache", action="store_true",  help="Overwrite the cached processed training and evaluation sets")
 
     # model arguments
     parser.add_argument("--model_name_or_path", default=None, type=str, help="Path to pretrained model or model identifier from huggingface.co/models.")
-    parser.add_argument("--not_trust_remote_code", action="store_true", help="If passed, will not trust the remote code when loading the model.")
     parser.add_argument("--attn_implementation", type=str, default="sdpa", choices=["eager", "flash_attention_2", "sdpa"], help="Attention implementation to use.")
     parser.add_argument("--torch_dtype", type=str, default="auto", choices=["auto", "float16", "bfloat16", "float32"], help="Specify the dtype of the model.")
 
-    # preprocessed data arguments
-    parser.add_argument("--preprocessed_data_dir", type=str, required=True, help="Path to the preprocessed datasets.")
+    # datasets arguments
+    parser.add_argument("--dataset_name", default=None, type=str, help="The name of the dataset to use (via the Hugging Face's datasets hub).")
+    parser.add_argument("--dataset_config_name", default=None, type=str, help="The configuration name of the dataset.")
+    parser.add_argument("--validation_split_percentage", default=5, type=int, help="The percentage of the training data to use for validation.")
+
+    parser.add_argument("--not_use_fast", action="store_true", help="Do not use fast tokenizer when loading the tokenizer.")
+    parser.add_argument("--preprocessing_num_workers", default=None, type=int, help="The number of processes to use for the preprocessing.")
+    parser.add_argument("--block_size", default=None, type=int, help="The size of the blocks to group the texts into.")
 
     # training arguments
     parser.add_argument("--per_device_train_batch_size", type=int, default=1, help="Batch size (per device) for the training dataloader.")
@@ -108,7 +117,7 @@ def main():
     # set the seed for reproducibility
     reproducibility.seed_all(args.seed)
 
-    # load the pretrained model
+    # load the pretrained model and tokenizer
     torch_dtype = torch_dtype_map.get(args.torch_dtype, "auto")
     model = AutoModelForCausalLM.from_pretrained(
         pretrained_model_name_or_path=args.model_name_or_path,
@@ -119,7 +128,15 @@ def main():
         device_map="auto"
     )
 
-    lm_datasets = load_from_disk(
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.tokenizer_name_or_path,
+        use_fast=not args.not_use_fast,
+        trust_remote_code=not args.not_trust_remote_code,
+        cache_dir=args.cache_dir
+    )
+
+    lm_datasets = get_processed_datasets(
+        tokenizer,
         args.preprocessed_data_dir
     )
     train_dataset = lm_datasets["train"]

@@ -1,36 +1,12 @@
 """
-This script is used to preprocess datasets from Hugging Face's datasets hub for causal language modeling tasks.
+This script provides utility functions to preprocess datasets from Hugging Face's datasets hub for causal language modeling tasks.
 It includes functions to load, tokenize, and prepare datasets for training, with options
 for handling validation splits, tokenization, and text grouping into fixed-size blocks.
-The preprocessed data will be saved in the output directory specified by the user and can be reused for future runs.
 """
 
-import argparse
 import warnings
-from pathlib import Path
 from itertools import chain
 from datasets import load_dataset
-from transformers import (
-    AutoTokenizer,
-)
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--tokenizer_name_or_path", required=True, type=str, help="The name of the tokenizer to use (via the Hugging Face's model hub).")
-    parser.add_argument("--not_trust_remote_code", action="store_true", help="Do not trust remote code when loading the tokenizer.")
-    parser.add_argument("--not_use_fast", action="store_true", help="Do not use fast tokenizer when loading the tokenizer.")
-
-    parser.add_argument("--dataset_name", required=True, type=str, help="The name of the dataset to use (via the Hugging Face's datasets hub).")
-    parser.add_argument("--dataset_config_name", default=None, type=str, help="The configuration name of the dataset.")
-    parser.add_argument("--validation_split_percentage", default=5, type=int, help="The percentage of the training data to use for validation.")
-    parser.add_argument("--preprocessing_num_workers", default=None, type=int, help="The number of processes to use for the preprocessing.")
-    parser.add_argument("--block_size", default=None, type=int, help="The size of the blocks to group the texts into.")
-
-    parser.add_argument("--output_dir", default=None, help="The directory to save the preprocessed datasets.")
-    parser.add_argument("--cache_dir", default="./cache", type=str, help="The directory to cache the downloaded datasets.")
-    parser.add_argument("--overwrite_cache", action="store_true", help="Overwrite the cache directory.")
-
-    return parser.parse_args()
 
 def get_processed_datasets(
     tokenizer,
@@ -122,27 +98,3 @@ def get_processed_datasets(
     )
 
     return lm_datasets
-
-
-def main():
-    
-    args = parse_args()
-
-    tokenizer = AutoTokenizer.from_pretrained(
-        args.tokenizer_name_or_path,
-        use_fast=not args.not_use_fast,
-        trust_remote_code=not args.not_trust_remote_code,
-        cache_dir=args.cache_dir
-    )
-
-    datasets = get_processed_datasets(tokenizer, args)
-
-    if args.output_dir is None:
-        args.output_dir = f"./preprocessed_data/{args.dataset_name}/{args.dataset_config_name}"
-
-    print(f"Saving the preprocessed datasets to {args.output_dir}")
-    Path(args.output_dir).mkdir(parents=True, exist_ok=True)
-    datasets.save_to_disk(args.output_dir)
-
-if __name__ == "__main__":
-    main()
