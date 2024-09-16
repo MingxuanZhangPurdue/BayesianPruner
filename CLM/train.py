@@ -50,12 +50,12 @@ def parse_args():
     parser.add_argument("--overwrite_cache", action="store_true",  help="Overwrite the cached processed training and evaluation sets")
 
     # model arguments
-    parser.add_argument("--model_name_or_path", required=True, type=str, help="Path to pretrained model or model identifier from huggingface.co/models.")
+    parser.add_argument("--model_name_or_path", default=None, type=str, help="Path to pretrained model or model identifier from huggingface.co/models.")
     parser.add_argument("--attn_implementation", type=str, default="sdpa", choices=["eager", "flash_attention_2", "sdpa"], help="Attention implementation to use.")
     parser.add_argument("--torch_dtype", type=str, default="auto", choices=["auto", "float16", "bfloat16", "float32"], help="Specify the dtype of the model.")
 
     # datasets arguments
-    parser.add_argument("--dataset_name", required=True, type=str, help="The name of the dataset to use (via the datasets library).")
+    parser.add_argument("--dataset_name", default=None, type=str, help="The name of the dataset to use (via the datasets library).")
     parser.add_argument("--dataset_config_name", type=str, default=None, help="The configuration name of the dataset to use (via the datasets library).")
     parser.add_argument("--validation_split_percentage", default=5, help="The percentage of the train set used as validation set in case there's no validation split")
 
@@ -103,6 +103,11 @@ def parse_args():
             parser.set_defaults(**config["Arguments"])
 
     args = parser.parse_args(remaining)
+
+    if args.model_name_or_path is None:
+        raise ValueError("model_name_or_path is required")
+    if args.dataset_name is None:
+        raise ValueError("dataset_name is required")
 
     return args, config
 
