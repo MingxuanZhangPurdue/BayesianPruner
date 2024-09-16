@@ -12,6 +12,7 @@ __pycache__/
 # ignore .DS_Store
 .DS_Store
 cache/*
+preprocessed_data/*
 
 # Distribution / packaging
 .Python
