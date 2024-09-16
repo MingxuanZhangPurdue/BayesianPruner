@@ -187,17 +187,32 @@ def main():
         config["LRScheduler"]["name"]
     )(**config["LRScheduler"]["params"])
 
+    # calculate the total number of training steps
+    train_time = composer.Time.from_timestring(args.max_duration)
+    if train_time.unit == composer.TimeUnit.EPOCH:
+        total_train_steps = len(train_dataloader) * train_time.value
+    elif train_time.unit == composer.TimeUnit.BATCH:
+        total_train_steps = train_time.value
+    else:
+        raise ValueError(f"Unsupported time unit: {train_time.unit}")
+
     # initialize the sparsity scheduler
     sparsity_scheduler = getattr(
         pruners, 
         config["SparsityScheduler"]["name"]
-    )(**config["SparsityScheduler"]["params"])
+    )(
+        total_train_steps=total_train_steps,
+        **config["SparsityScheduler"]["params"]
+    )
 
     # initialize the prior scheduler
     prior_scheduler = getattr(
         pruners, 
         config["PriorScheduler"]["name"]
-    )(**config["PriorScheduler"]["params"])
+    )(
+        total_train_steps=total_train_steps,
+        **config["PriorScheduler"]["params"]
+    )
 
     # initialize the pruner algorithm
     block_size = train_dataset[0]["input_ids"].shape[0]
