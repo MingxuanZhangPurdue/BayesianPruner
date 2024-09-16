@@ -30,7 +30,7 @@ LRScheduler:
     alpha_i: 1.0
     alpha_f: 0.01
 
-MainArguments:
+Arguments:
   cache_dir: ./cache
   model_name_or_path: openai-community/gpt2
   attn_implementation: sdpa
