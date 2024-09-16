@@ -79,10 +79,10 @@ def parse_args():
 
     # evaluation
     parser.add_argument("--eval_interval", type=str, default="1dur", help="Interval to evaluate the model.")
-    parser.add_argument("--per_device_eval_batch_size", type=int, default=64, help="Batch size (per device) for the evaluation dataloader.")
+    parser.add_argument("--per_device_eval_batch_size", type=int, default=8, help="Batch size (per device) for the evaluation dataloader.")
 
     # wandb logging
-    parser.add_argument("--wandb_project_name", type=str, default="upstream_bert_base", help="The wandb project to log to.")
+    parser.add_argument("--wandb_project_name", type=str, default="BayesianPruning", help="The wandb project to log to.")
     parser.add_argument("--wandb_run_name", type=str, default=None, help="The wandb run name.")
 
     # reproducibility
