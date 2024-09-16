@@ -30,6 +30,13 @@ torch_dtype_map = {
 }
 
 def parse_args():
+    """
+    Parses command-line arguments and YAML configuration.
+
+    Returns:
+        args: Parsed arguments.
+        config: Loaded YAML configuration.
+    """
 
     # YAML config parser
     config_parser = argparse.ArgumentParser(description='YAML Config', add_help=False)
