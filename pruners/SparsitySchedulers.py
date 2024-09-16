@@ -19,7 +19,7 @@ class SparsityScheduler(ABC):
         return sparsity, action
 
 class CubicSparsityScheduler(SparsityScheduler):
-    def __init__(self, initial_sparsity: float, final_sparsity: float, 
+    def __init__(self, initial_sparsity: float, final_sparsity: float,
                  total_train_steps: int, pruning_start_step: StepType, 
                  pruning_end_step: StepType, pruning_interval: StepType):
 

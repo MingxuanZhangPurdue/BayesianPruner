@@ -293,6 +293,8 @@ def parse_args():
 
 
 def main():
+
+    # parse the arguments and YAML config file
     args, cfg = parse_args()
 
     # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
