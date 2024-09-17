@@ -39,7 +39,7 @@ class UnstructuredBayesianPruner(Algorithm):
             return True
         return any(pattern.search(module_name) for pattern in self.target_modules)
     
-    def print_pruning_modules(
+    def print_info(
         self, 
         model: torch.nn.Module
     ) -> None:
@@ -60,6 +60,9 @@ class UnstructuredBayesianPruner(Algorithm):
                 print(f"- {module_name}")
         
         print(f"Total number of candidate parameters for pruning: {self.total_target_params:,}")
+        print(f"Prior scheduler: {self.prior_scheduler.__class__.__name__}")
+        print(f"Sparsity scheduler: {self.sparsity_scheduler.__class__.__name__}")
+        print(f"Train size: {self.train_size:,}")
 
     def apply_prior_grad(
         self,
@@ -168,7 +171,7 @@ class UnstructuredBayesianPruner(Algorithm):
     def apply(self, event, state, logger):
 
         if event == Event.FIT_START:
-            self.print_pruning_modules(state.model)
+            self.print_info(state.model)
 
         elif event == Event.AFTER_TRAIN_BATCH:
             train_step = state.timestamp.batch.value
