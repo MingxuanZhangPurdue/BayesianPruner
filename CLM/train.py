@@ -158,13 +158,17 @@ def main():
         train_dataset, 
         sampler=train_sampler, 
         collate_fn=default_data_collator, 
-        batch_size=args.per_device_train_batch_size
+        batch_size=args.per_device_train_batch_size,
+        num_workers=args.num_workers,
+        pin_memory=args.pin_memory
     )
     eval_dataloader = DataLoader(
         eval_dataset, 
         sampler=eval_sampler, 
         collate_fn=default_data_collator, 
-        batch_size=args.per_device_eval_batch_size
+        batch_size=args.per_device_eval_batch_size,
+        num_workers=args.num_workers,
+        pin_memory=args.pin_memory
     )
 
     # initialize the composer model
