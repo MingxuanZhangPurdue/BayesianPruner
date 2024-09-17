@@ -33,8 +33,8 @@ LRScheduler:
 Arguments:
   cache_dir: ./cache
   model_name_or_path: openai-community/gpt2
-  attn_implementation: sdpa
-  torch_dtype: float32
+  attn_implementation: flash_attention_2
+  torch_dtype: bfloat16
   dataset_name: HuggingFaceFW/fineweb
   dataset_config_name: sample-10BT
   block_size: 512
@@ -42,7 +42,7 @@ Arguments:
   validation_split_percentage: 5
   per_device_train_batch_size: 64
   precision: amp_bf16
-  learning_rate: 0.00001
+  learning_rate: 0.00005
   max_duration: 1ep
   save_folder: ./checkpoints/CLM
   save_interval: 0.25dur
