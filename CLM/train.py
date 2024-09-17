@@ -138,7 +138,7 @@ def main():
     # get the processed datasets
     lm_datasets = get_processed_datasets(
         tokenizer,
-        args.preprocessed_data_dir
+        args
     )
     train_dataset = lm_datasets["train"]
     eval_dataset = lm_datasets["validation"]
