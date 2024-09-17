@@ -176,6 +176,8 @@ def main():
         shift_labels=True
     )
 
+    print (composer_model.state_dict().keys())
+
     # initialize the optimizer (AdamW)
     optimizer = torch.optim.AdamW(
         composer_model.parameters(), 
