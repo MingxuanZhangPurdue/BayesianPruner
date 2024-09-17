@@ -143,7 +143,7 @@ class UnstructuredBayesianPruner(Algorithm):
         train_step: int
     ) -> Tuple[float, float, Optional[str]]:
 
-        sparsity, pruning_action = self.sparsity_scheduler.get_sparsity(train_step)
+        sparsity, pruning_action = self.sparsity_scheduler.get_sparsity_and_action(train_step)
         mask = None
         pruning_threshold = None
 
