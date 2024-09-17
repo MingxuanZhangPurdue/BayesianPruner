@@ -127,6 +127,7 @@ def main():
         torch_dtype=torch_dtype,
         device_map="auto"
     )
+    model = torch.compile(model)
 
     tokenizer = AutoTokenizer.from_pretrained(
         args.model_name_or_path,
