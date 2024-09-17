@@ -53,8 +53,8 @@ def parse_args():
 
     # model arguments
     parser.add_argument("--model_name_or_path", default=None, type=str, help="Path to pretrained model or model identifier from huggingface.co/models.")
-    parser.add_argument("--attn_implementation", type=str, default="sdpa", choices=["eager", "flash_attention_2", "sdpa"], help="Attention implementation to use.")
-    parser.add_argument("--torch_dtype", type=str, default="auto", choices=["auto", "float16", "bfloat16", "float32"], help="Specify the dtype of the model.")
+    parser.add_argument("--attn_implementation", type=str, default="flash_attention_2", choices=["flash_attention_2", "sdpa"], help="Attention implementation to use.")
+    parser.add_argument("--torch_dtype", type=str, default="bfloat16", choices=["float16", "bfloat16"], help="Specify the dtype of the model.")
 
     # datasets arguments
     parser.add_argument("--dataset_name", default=None, type=str, help="The name of the dataset to use (via the Hugging Face's datasets hub).")
