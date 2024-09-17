@@ -17,7 +17,7 @@ from composer.models.huggingface import HuggingFaceModel
 from composer.metrics import LanguageCrossEntropy
 from composer.loggers import WandBLogger
 
-from utils_data import get_processed_datasets
+from .utils_data import get_processed_datasets
 
 import pruners
 
