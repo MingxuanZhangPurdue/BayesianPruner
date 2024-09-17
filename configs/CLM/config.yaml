@@ -33,7 +33,7 @@ LRScheduler:
 Arguments:
   cache_dir: ./cache
   model_name_or_path: openai-community/gpt2
-  attn_implementation: flash_attention_2
+  attn_implementation: sdpa
   torch_dtype: bfloat16
   dataset_name: HuggingFaceFW/fineweb
   dataset_config_name: sample-10BT
