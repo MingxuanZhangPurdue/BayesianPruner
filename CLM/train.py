@@ -129,7 +129,7 @@ def main():
     )
 
     tokenizer = AutoTokenizer.from_pretrained(
-        args.tokenizer_name_or_path,
+        args.model_name_or_path,
         use_fast=not args.not_use_fast,
         trust_remote_code=not args.not_trust_remote_code,
         cache_dir=args.cache_dir
