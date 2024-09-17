@@ -220,7 +220,7 @@ def main():
     )
 
     # initialize the pruner algorithm
-    block_size = train_dataset[0]["input_ids"].shape[0]
+    block_size = len(train_dataset[0]["input_ids"])
     pruner =  getattr(
         pruners, 
         config["Pruner"]["name"]
