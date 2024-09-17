@@ -233,7 +233,7 @@ def main():
     wandb_logger = WandBLogger(
         project=args.wandb_project_name,
         name=args.wandb_run_name,
-        init_kwargs = {"config": {"args": vars(args), "YAML": vars(config)}}
+        init_kwargs = {"config": {"args": vars(args), "YAML": config}}
     )
 
     # initialize the trainer
