@@ -24,8 +24,6 @@ import pruners
 torch_dtype_map = {
     "float16": torch.float16,
     "bfloat16": torch.bfloat16,
-    "float32": torch.float32,
-    "auto": "auto"
 }
 
 def parse_args():
@@ -68,7 +66,7 @@ def parse_args():
     # training arguments
     parser.add_argument("--per_device_train_batch_size", type=int, default=1, help="Batch size (per device) for the training dataloader.")
     parser.add_argument("--per_device_train_microbatch_size", type=int, default=None, help="The micro-batch size to use for training (per device). If not specified, will use automatic microbatching.")
-    parser.add_argument("--precision", type=str, default="amp_bf16", help="The training precision to use, can be fp32, amp_fp16, or amp_bf16.", choices=[None, "fp32", "amp_fp16", "amp_bf16"])
+    parser.add_argument("--precision", type=str, default="amp_fp16", help="The training precision to use, can be fp32, amp_fp16, or amp_bf16.", choices=[None, "amp_fp16", "amp_bf16"])
     parser.add_argument("--learning_rate", type=float, default=1e-5, help="Initial learning rate (after the potential warmup period) to use.")
     parser.add_argument("--max_duration", type=str, default="1ep", help="Total number of training epochs/batches/steps to perform.")
 
