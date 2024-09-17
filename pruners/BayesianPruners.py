@@ -62,6 +62,8 @@ class UnstructuredBayesianPruner(Algorithm):
         print(f"Total number of candidate parameters for pruning: {self.total_target_params:,}")
         print(f"Prior scheduler: {self.prior_scheduler.__class__.__name__}")
         print(f"Sparsity scheduler: {self.sparsity_scheduler.__class__.__name__}")
+        print(f"Pruning start step: {self.sparsity_scheduler.pruning_start_step}")
+        print(f"Pruning end step: {self.sparsity_scheduler.pruning_end_step}")
         print(f"Train size: {self.train_size:,}")
 
     def apply_prior_grad(

@@ -63,6 +63,9 @@ def parse_args():
     parser.add_argument("--preprocessing_num_workers", default=None, type=int, help="The number of processes to use for the preprocessing.")
     parser.add_argument("--block_size", default=None, type=int, help="The size of the blocks to group the texts into.")
 
+    parser.add_argument("--pin_memory", action="store_true", help="Pin memory for the training dataloader.")
+    parser.add_argument("--num_workers", type=int, default=0, help="The number of workers to use for the training dataloader.")
+
     # training arguments
     parser.add_argument("--per_device_train_batch_size", type=int, default=1, help="Batch size (per device) for the training dataloader.")
     parser.add_argument("--per_device_train_microbatch_size", type=int, default=None, help="The micro-batch size to use for training (per device). If not specified, will use automatic microbatching.")
@@ -165,12 +168,8 @@ def main():
     )
 
     # initialize the composer model
-    metrics = [
-        LanguageCrossEntropy(),
-    ]
     composer_model = HuggingFaceModel(
         model, 
-        metrics=metrics, 
         use_logits=True,
         shift_labels=True
     )
