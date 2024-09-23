@@ -103,8 +103,6 @@ def parse_args():
 
     if args.model_name_or_path is None:
         raise ValueError("model_name_or_path is required")
-    if args.dataset_name is None:
-        raise ValueError("dataset_name is required")
 
     return args, config
 
