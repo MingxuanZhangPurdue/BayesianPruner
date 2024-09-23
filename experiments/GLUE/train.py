@@ -131,19 +131,19 @@ def main():
     )
 
     # load the config and model
-    config = AutoConfig.from_pretrained(
+    model_config = AutoConfig.from_pretrained(
         args.model_name_or_path,
         num_labels=num_labels,
         finetuning_task=args.task_name,
         trust_remote_code=not args.not_trust_remote_code,
         cache_dir=args.cache_dir,
     )
-    config.pad_token_id = tokenizer.pad_token_id
+    model_config.pad_token_id = tokenizer.pad_token_id
 
     torch_dtype = torch_dtype_map.get(args.torch_dtype, "auto")
     model = AutoModelForSequenceClassification.from_pretrained(
         args.model_name_or_path,
-        config=config,
+        config=model_config,
         trust_remote_code=not args.not_trust_remote_code,
         cache_dir=args.cache_dir,
         torch_dtype=torch_dtype,
