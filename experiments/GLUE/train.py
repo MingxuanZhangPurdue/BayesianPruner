@@ -147,7 +147,7 @@ def main():
         trust_remote_code=not args.not_trust_remote_code,
         cache_dir=args.cache_dir,
         torch_dtype=torch_dtype,
-    )
+    ).to("cuda" if torch.cuda.is_available() else "cpu")
 
     if not args.task_name == "stsb":
         model.config.label2id = {l: i for i, l in enumerate(label_list)}
