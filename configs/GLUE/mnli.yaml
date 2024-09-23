@@ -3,7 +3,7 @@ SparsityScheduler:
   params:
     initial_sparsity: 0.1
     final_sparsity: 0.8
-    pruning_start_step: 0.01
+    pruning_start_step: 0.1
     pruning_end_step: 0.9
     pruning_interval: 0.01
 
@@ -32,9 +32,9 @@ LRScheduler:
 Arguments:
   cache_dir: ./cache
   model_name_or_path: bert-base-uncased
-  torch_dtype: bfloat16
+  torch_dtype: float32
   task_name: mnli
-  max_length: 256
+  max_length: 512
   preprocessing_num_workers: 64
   pin_memory: true
   num_workers: 8
