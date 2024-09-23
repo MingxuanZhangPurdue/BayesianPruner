@@ -1,0 +1,50 @@
+SparsityScheduler:
+  name: CubicSparsityScheduler
+  params:
+    initial_sparsity: 0.1
+    final_sparsity: 0.8
+    pruning_start_step: 0.01
+    pruning_end_step: 0.9
+    pruning_interval: 0.01
+
+PriorScheduler:
+  name: ConstantPriorScheduler
+  params:
+    lambda_mix: 0.0001
+    sigma0: 0.0000000001
+    sigma1: 0.01
+
+Pruner:
+  name: UnstructuredBayesianPruner
+  params:
+    target_modules:
+      - c_fc.weight
+      - c_proj.weight
+      - c_attn.weight
+
+LRScheduler:
+  name: CosineAnnealingWithWarmupScheduler
+  params:
+    t_warmup: 0.001dur
+    alpha_f: 0.1
+
+Arguments:
+  cache_dir: ./cache
+  model_name_or_path: openai-community/gpt2
+  attn_implementation: flash_attention_2
+  torch_dtype: bfloat16
+  dataset_name: HuggingFaceFW/fineweb
+  dataset_config_name: sample-10BT
+  block_size: 1024
+  preprocessing_num_workers: 64
+  validation_split_percentage: 5
+  pin_memory: true
+  num_workers: 64
+  per_device_train_batch_size: 128
+  precision: amp_bf16
+  learning_rate: 0.00005
+  max_duration: 1ep
+  save_folder: ./checkpoints/CLM
+  save_interval: 0.25dur
+  per_device_eval_batch_size: 32
+  seed: 42
