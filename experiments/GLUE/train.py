@@ -24,6 +24,12 @@ from .utils_data import get_processed_datasets
 
 import pruners
 
+torch_dtype_map = {
+    "float16": torch.float16,
+    "bfloat16": torch.bfloat16,
+    "float32": torch.float32
+}
+
 def parse_args():
     """
     Parses command-line arguments and YAML configuration.
@@ -57,6 +63,48 @@ def parse_args():
 
     return args, config
 
-def maiu():
+def main():
 
+    # parse the arguments
     args, config = parse_args()
+
+    # set the seed for reproducibility
+    reproducibility.seed_all(args.seed)
+
+
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.model_name_or_path, 
+        use_fast=not args.use_slow_tokenizer, 
+        trust_remote_code=args.trust_remote_code,
+        cache_dir=args.cache_dir,
+    )
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    processed_datasets, num_labels, label_list = get_processed_datasets(args)
+
+    config = AutoConfig.from_pretrained(
+        args.model_name_or_path,
+        num_labels=num_labels,
+        finetuning_task=args.task_name,
+        trust_remote_code=args.trust_remote_code,
+        cache_dir=args.cache_dir,
+    )
+    config.pad_token_id = tokenizer.pad_token_id
+
+    torch_dtype = torch_dtype_map.get(args.torch_dtype, "auto")
+    model = AutoModelForSequenceClassification.from_pretrained(
+        args.model_name_or_path,
+        config=config,
+        ignore_mismatched_sizes=args.ignore_mismatched_sizes,
+        trust_remote_code=args.trust_remote_code,
+        cache_dir=args.cache_dir,
+        torch_dtype=torch_dtype
+    )
+
+    if not args.task_name == "stsb":
+        model.config.label2id = {l: i for i, l in enumerate(label_list)}
+        model.config.id2label = {id: label for label, id in model.config.label2id.items()}
+
+    train_dataset = processed_datasets["train"]
+    eval_dataset = processed_datasets["validation_matched" if args.task_name == "mnli" else "validation"]
