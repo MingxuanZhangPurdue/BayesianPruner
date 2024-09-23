@@ -53,8 +53,7 @@ def parse_args():
 
     # model arguments
     parser.add_argument("--model_name_or_path", default=None, type=str, help="Path to pretrained model or model identifier from huggingface.co/models.")
-    parser.add_argument("--attn_implementation", type=str, default="flash_attention_2", choices=["flash_attention_2", "sdpa"], help="Attention implementation to use.")
-    parser.add_argument("--torch_dtype", type=str, default="bfloat16", choices=["float16", "bfloat16"], help="Specify the dtype of the model.")
+    parser.add_argument("--torch_dtype", type=str, default="float32", choices=["float16", "bfloat16", "float32"], help="Specify the dtype of the model.")
 
     # datasets arguments
     parser.add_argument("--task_name", default="mnli", choices=["mrpc", "stsb", "sst2", "qqp", "mnli", "qnli", "rte"], type=str, help="The name of the GLUE task.")
@@ -150,7 +149,6 @@ def main():
         trust_remote_code=not args.not_trust_remote_code,
         cache_dir=args.cache_dir,
         torch_dtype=torch_dtype,
-        attention_implementation=args.attn_implementation,
     )
 
     if not args.task_name == "stsb":
