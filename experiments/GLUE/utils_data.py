@@ -61,7 +61,6 @@ def get_processed_datasets(
         desc="Running tokenizer on dataset",
         num_proc=args.preprocessing_num_workers,
         load_from_cache_file=not args.overwrite_cache,
-        overwrite_cache=args.overwrite_cache,
     )
 
     return processed_datasets, num_labels, label_list
