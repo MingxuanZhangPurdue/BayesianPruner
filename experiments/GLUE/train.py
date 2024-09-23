@@ -86,7 +86,7 @@ def parse_args():
     parser.add_argument("--per_device_eval_batch_size", type=int, default=8, help="Batch size (per device) for the evaluation dataloader.")
 
     # wandb logging
-    parser.add_argument("--wandb_project_name", type=str, default="BayesianPruning", help="The wandb project to log to.")
+    parser.add_argument("--wandb_project_name", type=str, default="BayesianPruner-GLUE", help="The wandb project to log to.")
     parser.add_argument("--wandb_run_name", type=str, default=None, help="The wandb run name.")
 
     # reproducibility
