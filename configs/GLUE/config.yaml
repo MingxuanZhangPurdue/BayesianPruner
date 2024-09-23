@@ -10,17 +10,18 @@ SparsityScheduler:
 PriorScheduler:
   name: ConstantPriorScheduler
   params:
-    lambda_mix: 0.0001
+    lambda_mix: 0.001
     sigma0: 0.0000000001
-    sigma1: 0.01
+    sigma1: 0.05
 
 Pruner:
   name: UnstructuredBayesianPruner
   params:
     target_modules:
-      - c_fc.weight
-      - c_proj.weight
-      - c_attn.weight
+      - query.weight
+      - key.weight
+      - value.weight
+      - dense.weight
 
 LRScheduler:
   name: CosineAnnealingWithWarmupScheduler
@@ -30,21 +31,18 @@ LRScheduler:
 
 Arguments:
   cache_dir: ./cache
-  model_name_or_path: openai-community/gpt2
-  attn_implementation: flash_attention_2
+  model_name_or_path: bert-base-uncased
   torch_dtype: bfloat16
-  dataset_name: HuggingFaceFW/fineweb
-  dataset_config_name: sample-10BT
-  block_size: 1024
+  task_name: mnli
+  max_length: 256
   preprocessing_num_workers: 64
-  validation_split_percentage: 5
   pin_memory: true
   num_workers: 64
-  per_device_train_batch_size: 128
+  per_device_train_batch_size: 32
   precision: amp_bf16
   learning_rate: 0.00005
-  max_duration: 1ep
-  save_folder: ./checkpoints/CLM
+  max_duration: 10ep
+  save_folder: ./checkpoints/GLUE/mnli
   save_interval: 0.25dur
   per_device_eval_batch_size: 32
   seed: 42
