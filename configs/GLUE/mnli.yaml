@@ -45,4 +45,5 @@ Arguments:
   save_folder: ./checkpoints/GLUE/mnli
   save_interval: 0.25dur
   per_device_eval_batch_size: 32
+  eval_interval: 1ep
   seed: 42

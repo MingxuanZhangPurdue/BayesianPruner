@@ -12,11 +12,14 @@ from transformers import (
     default_data_collator,
 )
 
+from torchmetrics.classification import MulticlassAccuracy
+
 import composer
 from composer.utils.dist import get_sampler
 from composer.utils import reproducibility
 from composer.models.huggingface import HuggingFaceModel
 from composer.loggers import WandBLogger
+from composer.core import Evaluator
 
 from .utils_data import get_processed_datasets
 
@@ -130,6 +133,9 @@ def main():
         args
     )
 
+    # set the evluation metrics based on the task
+    metrics = [MulticlassAccuracy(num_classes=num_labels, average='micro')]
+
     # load the config and model
     model_config = AutoConfig.from_pretrained(
         args.model_name_or_path,
@@ -200,10 +206,26 @@ def main():
         drop_last=False
     )
 
+    if args.task_name == "mnli":
+        mm_eval_dataset = processed_datasets["validation_mismatched"]
+        mm_eval_sampler = get_sampler(mm_eval_dataset, shuffle=False)
+        mm_eval_dataloader = DataLoader(mm_eval_dataset, collate_fn=data_collator, batch_size=args.per_device_eval_batch_size, sampler=mm_eval_sampler)
+        mnli_matched_task = Evaluator(
+            label='mnli_matched_accuracy',
+            dataloader=eval_dataloader,
+            metric_names=['MulticlassAccuracy']
+        )
+        mnli_mismatched_task = Evaluator(
+            label='mnli_mismatched_accuracy',
+            dataloader=mm_eval_dataloader,
+            metric_names=['MulticlassAccuracy']
+        )
+
     # initialize the composer model
     composer_model = HuggingFaceModel(
         model, 
         use_logits=True,
+        metrics=metrics
     )
 
     # initialize the optimizer (AdamW)
@@ -278,7 +300,7 @@ def main():
         schedulers=lr_scheduler,
 
         # evaluation
-        eval_dataloader=eval_dataloader,
+        eval_dataloader=[mnli_matched_task, mnli_mismatched_task] if args.task_name == "mnli" else eval_dataloader,
         eval_interval=args.eval_interval,
 
         # logging
