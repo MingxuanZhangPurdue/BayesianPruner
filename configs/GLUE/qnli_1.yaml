@@ -1,7 +1,7 @@
 SparsityScheduler:
   name: CubicSparsityScheduler
   params:
-    initial_sparsity: 0.5
+    initial_sparsity: 0.3
     final_sparsity: 0.8
     pruning_start_step: 0.2
     pruning_end_step: 0.8
