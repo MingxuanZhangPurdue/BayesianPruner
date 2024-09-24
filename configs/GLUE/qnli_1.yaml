@@ -1,17 +1,17 @@
 SparsityScheduler:
-  name: CubicSparsityScheduler
+  name: StepSparsityScheduler
   params:
-    initial_sparsity: 0.3
+    sparsity_delta: 0.05
     final_sparsity: 0.8
-    pruning_start_step: 0.2
-    pruning_end_step: 0.8
-    pruning_interval: 0.01
+    pruning_start_step: 0.1
+    pruning_end_step: 0.9
+    pruning_interval: 0.1
 
 PriorScheduler:
   name: ConstantPriorScheduler
   params:
     lambda_mix: 0.001
-    sigma0: 0.00000001
+    sigma0: 0.0000000001
     sigma1: 0.05
 
 Pruner:
