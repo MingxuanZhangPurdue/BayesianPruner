@@ -51,6 +51,8 @@ class CubicSparsityScheduler(SparsityScheduler):
     def define_pruning_action(self, train_step: int) -> PruningAction:
         if train_step < self.pruning_start_step:
             return None
+        elif train_step == self.pruning_start_step:
+            return "sparsity"
         elif train_step == self.pruning_end_step:
             return "sparsity"
         elif train_step > self.pruning_end_step:
