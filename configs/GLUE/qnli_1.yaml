@@ -5,7 +5,6 @@ SparsityScheduler:
     final_sparsity: 0.8
     pruning_start_step: 0.1
     pruning_end_step: 0.9
-    pruning_interval: 0.1
 
 PriorScheduler:
   name: ConstantPriorScheduler
