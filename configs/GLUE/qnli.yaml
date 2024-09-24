@@ -4,14 +4,14 @@ SparsityScheduler:
     initial_sparsity: 0.1
     final_sparsity: 0.8
     pruning_start_step: 0.1
-    pruning_end_step: 0.9
+    pruning_end_step: 0.8
     pruning_interval: 0.01
 
 PriorScheduler:
   name: ConstantPriorScheduler
   params:
     lambda_mix: 0.001
-    sigma0: 0.0000000001
+    sigma0: 0.00000001
     sigma1: 0.05
 
 Pruner:
