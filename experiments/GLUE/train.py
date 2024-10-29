@@ -23,7 +23,7 @@ from composer.core import Evaluator
 
 from .utils_data import get_processed_datasets
 
-import pruners
+import bayesianpruner
 
 torch_dtype_map = {
     "float16": torch.float16,
@@ -255,7 +255,7 @@ def main():
 
     # initialize the sparsity scheduler
     sparsity_scheduler = getattr(
-        pruners, 
+        bayesianpruner, 
         config["SparsityScheduler"]["name"]
     )(
         total_train_steps=total_train_steps,
@@ -264,7 +264,7 @@ def main():
 
     # initialize the prior scheduler
     prior_scheduler = getattr(
-        pruners, 
+        bayesianpruner, 
         config["PriorScheduler"]["name"]
     )(
         total_train_steps=total_train_steps,
@@ -273,7 +273,7 @@ def main():
 
     # initialize the pruner algorithm
     pruner =  getattr(
-        pruners, 
+        bayesianpruner, 
         config["Pruner"]["name"]
     )(train_size=len(train_dataset),
       sparsity_scheduler=sparsity_scheduler,

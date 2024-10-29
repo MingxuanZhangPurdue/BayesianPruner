@@ -8,8 +8,6 @@ __pycache__/
 
 # ignore ipynb and its checkpoints
 .ipynb_checkpoints/
-
-# ignore .DS_Store
 .DS_Store
 cache/*
 preprocessed_data/*
