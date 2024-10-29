@@ -3,8 +3,8 @@ import math
 from typing import Optional, List, Union, Tuple
 
 from .utils import _compile_target_modules
-from .sparsityscheduler import SparsityScheduler
-from .priorscheduler import PriorScheduler
+from .sparsity import SparsityScheduler
+from .prior import PriorScheduler
 
 from composer.core import Algorithm, Event
 
