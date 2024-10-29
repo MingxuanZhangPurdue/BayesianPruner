@@ -1,0 +1,49 @@
+SparsityScheduler:
+  name: CubicSparsityScheduler
+  params:
+    initial_sparsity: 0.1
+    final_sparsity: 0.8
+    pruning_start_step: 0.1
+    pruning_end_step: 0.9
+    pruning_interval: 0.1
+
+PriorScheduler:
+  name: ConstantPriorScheduler
+  params:
+    lambda_mix: 0.001
+    sigma0: 0.0000000001
+    sigma1: 0.05
+
+Pruner:
+  name: UnstructuredBayesianPruner
+  params:
+    target_modules:
+      - query.weight
+      - key.weight
+      - value.weight
+      - dense.weight
+
+LRScheduler:
+  name: CosineAnnealingWithWarmupScheduler
+  params:
+    t_warmup: 0.01dur
+    alpha_f: 0.1
+
+Arguments:
+  cache_dir: ./cache
+  model_name_or_path: bert-base-uncased
+  torch_dtype: float32
+  task_name: qnli
+  max_length: 512
+  preprocessing_num_workers: 64
+  pin_memory: true
+  num_workers: 8
+  per_device_train_batch_size: 32
+  precision: amp_bf16
+  learning_rate: 0.00005
+  max_duration: 10ep
+  save_folder: ./checkpoints/GLUE/mnli
+  save_interval: 0.25dur
+  per_device_eval_batch_size: 32
+  eval_interval: 1ep
+  seed: 42

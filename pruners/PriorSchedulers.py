@@ -29,3 +29,4 @@ class ConstantPriorScheduler(PriorScheduler):
     ) -> tuple[float, float, float]:
         return self.lambda_mix, self.sigma0, self.sigma1
         
+

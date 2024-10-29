@@ -187,9 +187,9 @@ class UnstructuredBayesianPruner(Algorithm):
                     logger.log_metrics({"prior/prior_threshold": float(prior_threshold)})
 
         elif event == Event.BATCH_END:
-            train_step_index = state.timestamp.batch.value - 1
+            train_step = state.timestamp.batch.value - 1
             # perform pruning
-            sparsity, pruning_threshold, pruning_action, mask = self.prune(state.model, train_step_index)
+            sparsity, pruning_threshold, pruning_action, mask = self.prune(state.model, train_step)
             # log the current sparsity
             if logger is not None:
                 logger.log_metrics({"pruning/sparsity": float(sparsity)})
